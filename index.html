@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chugger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-blue-100 flex flex-col items-center justify-center min-h-screen">
+    <h1 id="mainTitle" class="text-4xl font-bold mb-10">💧 Chug a glass of water!</h1>
+
+    <div id="glass"
+        class="w-32 h-64 relative rounded-b-[40%] overflow-hidden shadow-inner border-2 border-[6px] border-blue-300">
+
+        <!-- water fill -->
+        <div id="water" class="absolute bottom-0 w-full bg-blue-400 transition-all duration-500 z-0 rounded-b-[40%]"
+            style="height: 100%">
+        </div>
+
+        <!-- Bubbles -->
+        <div id="bubbles">
+            <div
+                class="bubble absolute bottom-0 left-1/3 w-2 h-2 bg-white rounded-full opacity-30 animate-bubble1 z-10">
+            </div>
+            <div
+                class="bubble absolute bottom-0 left-1/2 w-1.5 h-1.5 bg-white rounded-full opacity-25 animate-bubble2 z-10">
+            </div>
+            <div
+                class="bubble absolute bottom-0 left-2/3 w-1 h-1 bg-white rounded-full opacity-20 animate-bubble3 z-10">
+            </div>
+        </div>
+
+    </div>
+
+    <button id="drinkBtn" class="mt-6 px-6 py-3 bg-blue-500 text-white font-bold rounded-xl hover:bg-blue-600">
+        Drink
+    </button>
+    <p id="message" class="mt-4 text-xl text-blue-800 font-semibold h-6 transition-opacity duration-700 opacity-0"></p>
+
+    <label class="flex items-center mb-4 mt-8 cursor-pointer select-none">
+        <span class="mr-3 text-blue-800 font-semibold">Bubbles:</span>
+        <div class="relative">
+            <input id="bubbleToggle" type="checkbox" class="sr-only peer" checked>
+            <div class="w-11 h-6 bg-blue-200 rounded-full peer peer-checked:bg-blue-500 transition-colors"></div>
+            <div
+                class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5">
+            </div>
+        </div>
+    </label>
+
+    <div class="flex items-center mb-4">
+        <label for="liquidSelect" class="mr-3 text-blue-800 font-semibold mb-0">Choose your drink:</label>
+        <select id="liquidSelect" class="px-3 py-2 rounded-lg border border-blue-300">
+            <option value="water">💧 Water</option>
+            <option value="juice">🧃 Juice</option>
+            <option value="coke">🥤 Coke</option>
+        </select>
+    </div>
+
+    <script>
+
+        let level = 100; // %
+        const waterDiv = document.getElementById('water');
+        const message = document.getElementById('message');
+
+        let glassesDrank = 0;
+        const maxGlasses = 10; // or whatever your daily goal is
+
+
+        let fadeTimeout; // Add this at the top with your other variables
+
+        const drinkBtn = document.getElementById('drinkBtn');
+
+        document.getElementById('drinkBtn').onclick = () => {
+            if (level > 0) {
+                level -= 20;
+                waterDiv.style.height = level + '%';
+                message.textContent = level === 0 ? "✅ All done!" : "💧 Glug glug...";
+                if (level === 0) {
+                    glassesDrank++;
+                    let percent = Math.min((glassesDrank / maxGlasses) * 100, 100);
+                    progressBar.style.width = percent + "%";
+                    document.getElementById('progressText').textContent = glassesDrank;
+                    drinkBtn.textContent = "Refill";
+                    drinkBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                    drinkBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                }
+            } else {
+                // Refill
+                level = 100;
+                waterDiv.style.height = level + '%';
+                message.textContent = "💧 Refilled!";
+                drinkBtn.textContent = "Drink";
+                drinkBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                drinkBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+            }
+            message.classList.add('opacity-100');
+            message.classList.remove('opacity-0');
+
+            if (fadeTimeout) clearTimeout(fadeTimeout);
+            fadeTimeout = setTimeout(() => {
+                message.classList.remove('opacity-100');
+                message.classList.add('opacity-0');
+            }, 2000);
+        };
+        // Bubble toggle logic
+        const bubbleToggle = document.getElementById('bubbleToggle');
+        const bubbles = document.getElementById('bubbles');
+        bubbleToggle.onchange = () => {
+            bubbles.style.display = bubbleToggle.checked ? '' : 'none';
+        };
+
+        const liquidSelect = document.getElementById('liquidSelect');
+        const glass = document.getElementById('glass');
+        const mainTitle = document.getElementById('mainTitle');
+        liquidSelect.onchange = function () {
+            // Remove previous color classes from water and glass
+            waterDiv.classList.remove(
+                'bg-blue-400', 'bg-orange-300', 'bg-white', 'bg-amber-200', 'bg-yellow-900', 'bg-amber-900'
+            );
+            glass.classList.remove(
+                'border-blue-300', 'border-orange-100', 'border-gray-200', 'border-amber-100', 'border-yellow-200'
+            );
+            // Add new color classes
+            switch (liquidSelect.value) {
+                case 'water':
+                    waterDiv.classList.add('bg-blue-400');
+                    glass.classList.add('border-blue-300');
+                    mainTitle.textContent = "💧 Chug a glass of water!";
+                    break;
+                case 'juice':
+                    waterDiv.classList.add('bg-orange-300');
+                    glass.classList.add('border-orange-100');
+                    mainTitle.textContent = "🧃 Chug a glass of juice!";
+                    break;
+                case 'coke':
+                    waterDiv.classList.add('bg-amber-900');
+                    glass.classList.add('border-yellow-600');
+                    mainTitle.textContent = "🥤 Chug a glass of coke!";
+                    break;
+            }
+        };
+
+    </script>
+
+    <footer class="fixed bottom-0 left-0 w-full bg-blue-200 py-3 px-4 flex flex-col items-center shadow-inner z-50">
+        <div class="w-full max-w-md flex items-center">
+            <span class="text-blue-800 font-semibold mr-4">Glasses Drank:</span>
+            <div class="flex-1 bg-blue-100 rounded-full h-4 overflow-hidden">
+                <div id="progressBar" class="bg-blue-500 h-4 transition-all duration-500" style="width: 0%">
+                </div>
+            </div>
+            <span id="progressText" class="ml-4 text-blue-800 font-semibold">0</span>
+        </div>
+    </footer>
+</body>
+
+<style>
+    @keyframes bubble1 {
+        0% {
+            transform: translateY(0) scale(1);
+            opacity: 0.3;
+        }
+
+        100% {
+            transform: translateY(-100px) scale(0.8);
+            opacity: 0;
+        }
+    }
+
+    @keyframes bubble2 {
+        0% {
+            transform: translateY(0) scale(1);
+            opacity: 0.25;
+        }
+
+        100% {
+            transform: translateY(-80px) scale(0.9);
+            opacity: 0;
+        }
+    }
+
+    @keyframes bubble3 {
+        0% {
+            transform: translateY(0) scale(1);
+            opacity: 0.2;
+        }
+
+        100% {
+            transform: translateY(-60px) scale(1);
+            opacity: 0;
+        }
+    }
+
+    .animate-bubble1 {
+        animation: bubble1 2s infinite ease-in-out;
+    }
+
+    .animate-bubble2 {
+        animation: bubble2 3s infinite ease-in-out 1s;
+    }
+
+    .animate-bubble3 {
+        animation: bubble3 2.5s infinite ease-in-out 0.5s;
+    }
+</style>
+
+
+</html>
