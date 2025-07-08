@@ -22,6 +22,7 @@
             font-size: 16px;
         }
     </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body>
@@ -34,17 +35,20 @@
             </div>
             <div class="row mb-4">
                 <div id="glass" class="d-flex justify-content-center p-3">
-                    <div class="rounded-bottom-5 bg-primary"
-                        style="width: 100px; height: 200px; border: solid lightblue;">
+                    <div
+                        style="width: 100px; height: 200px; border: 2px solid lightblue; position: relative; border-bottom-left-radius: 40%; border-bottom-right-radius: 40%; overflow: hidden;">
+                        <div id="water"
+                            style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background-color: #4299e1; border-bottom-left-radius: 40%; border-bottom-right-radius: 40%; transition: height 0.5s;">
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="row mb-4 col-3 mx-auto">
-                <button type="button" class="btn btn-primary btn-lg">Chugg</button>
+                <button id="chuggButton" type="button" class="btn btn-primary btn-lg">Chugg</button>
             </div>
             <div class="row mb-3">
-                <div id="message" class="text-center" style="height: 50px;">
-                </div>
+                <p id="message" class="text-center" style="height: 50px;">
+                </p>
             </div>
             <div class="row mb-3 justify-content-center">
                 <div class="text-center">
@@ -70,10 +74,44 @@
 </body>
 
 <script>
-    // We need to 3 pieces of interactive logic:
+    // 3 pieces of interactive logic:
     // 1. Pressing the chugg button should reduce the water in the glass and provide text feedback
+
+    const chuggButton = document.getElementById("chuggButton");
+    const waterDiv = document.getElementById("water");
+    const messageP = document.getElementById("message");
+
+    let waterLevel = 100;
+
+    chuggButton.addEventListener('click', function () {
+        if (waterLevel > 0) {
+            waterLevel -= 20;
+            waterDiv.style.height = waterLevel + "%";
+            messageP.textContent = "glug";
+            setTimeout(function () {
+                messageP.textContent = ""
+            }, 1500);
+
+            if (waterLevel === 0) {
+                messageP.textContent = "All done!";
+                setTimeout(function () {
+                    messageP.textContent = ""
+                }, 3000);
+                chuggButton.classList.remove("btn-primary");
+                chuggButton.classList.add("btn-success");
+                chuggButton.textContent = "Refill";
+            };
+        } else {
+            waterLevel = 100;
+            waterDiv.style.height = waterLevel + "%";
+            chuggButton.classList.remove("btn-success");
+            chuggButton.classList.add("btn-primary");
+        }
+    })
+
     // 2. Selecting a different drink should change the liquid in the glass
     // 3. Drinking an entire glass should allow the user to re-fill the glass and update the tracker
+
 
 </script>
 
