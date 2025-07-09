@@ -46,8 +46,10 @@
                     </div>
                 </div>
             </div>
-            <div class="row mb-4 col-3 mx-auto">
-                <button id="chuggButton" type="button" class="btn btn-primary btn-lg">Chugg</button>
+            <div class="row mb-4 justify-content-center mx-auto">
+                <div class="col-auto">
+                    <button id="chuggButton" type="button" class="btn btn-primary btn-lg px-4">Chugg</button>
+                </div>
             </div>
             <div class="row mb-3">
                 <p id="message" class="text-center" style="height: 50px;">
@@ -114,6 +116,7 @@
             liquidDiv.style.height = liquidLevel + "%";
             chuggButton.classList.remove("btn-success");
             chuggButton.classList.add("btn-primary");
+            chuggButton.textContent = "Chugg";
         }
     })
 
