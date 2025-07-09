@@ -27,17 +27,20 @@
 
 <body>
     <div class="container-fluid d-flex flex-column justify-content-center align-items-center min-vh-100">
-        <div class="col-12 col-sm-8 col-md-6 col-lg-6">
+        <div class="col-10">
             <div class="row mb-4">
                 <div class="text-center">
-                    <h1 class="display-5">💧 Chug a glass of water!</h1>
+                    <h1 id="appTitle" class="display-5">💧 Chug a glass of water!</h1>
                 </div>
+            </div>
+            <div class="row mb-4 text-center">
+                <h2>It is recommended to drink at least 8 glasses of water a day. <br>Make sure you get your fill!</h2>
             </div>
             <div class="row mb-4">
                 <div id="glass" class="d-flex justify-content-center p-3">
                     <div
-                        style="width: 100px; height: 200px; border: 2px solid lightblue; position: relative; border-bottom-left-radius: 40%; border-bottom-right-radius: 40%; overflow: hidden;">
-                        <div id="water"
+                        style="width: 100px; height: 200px; border: 2px solid white; position: relative; border-bottom-left-radius: 40%; border-bottom-right-radius: 40%; overflow: hidden;">
+                        <div id="liquid"
                             style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background-color: #4299e1; border-bottom-left-radius: 40%; border-bottom-right-radius: 40%; transition: height 0.5s;">
                         </div>
                     </div>
@@ -52,10 +55,10 @@
             </div>
             <div class="row mb-3 justify-content-center">
                 <div class="text-center">
-                    <select class="form-select w-auto mx-auto">
-                        <option value="1">Water</option>
-                        <option value="2">Juice</option>
-                        <option value="3">Coke</option>
+                    <select id="drinkSelector" class="form-select w-auto mx-auto">
+                        <option value="Water">Water</option>
+                        <option value="Juice">Juice</option>
+                        <option value="Coke">Coke</option>
                     </select>
                 </div>
             </div>
@@ -65,7 +68,7 @@
                 </div>
                 <div class="col-auto">
                     <div class="progress" style="width: 200px;">
-                        <div class="progress-bar bg-primary" style="width: 25%"></div>
+                        <div id="chuggTracker" class="progress-bar bg-primary" style="width: 0%"></div>
                     </div>
                 </div>
             </div>
@@ -78,21 +81,24 @@
     // 1. Pressing the chugg button should reduce the water in the glass and provide text feedback
 
     const chuggButton = document.getElementById("chuggButton");
-    const waterDiv = document.getElementById("water");
+    const liquidDiv = document.getElementById("liquid");
     const messageP = document.getElementById("message");
+    const chuggTracker = document.getElementById("chuggTracker");
+    const appTitle = document.getElementById("appTitle");
 
-    let waterLevel = 100;
+    let liquidLevel = 100;
+    let chuggedGlasses = 0;
 
     chuggButton.addEventListener('click', function () {
-        if (waterLevel > 0) {
-            waterLevel -= 20;
-            waterDiv.style.height = waterLevel + "%";
+        if (liquidLevel > 0) {
+            liquidLevel -= 20;
+            liquidDiv.style.height = liquidLevel + "%";
             messageP.textContent = "glug";
             setTimeout(function () {
                 messageP.textContent = ""
             }, 1500);
 
-            if (waterLevel === 0) {
+            if (liquidLevel === 0) {
                 messageP.textContent = "All done!";
                 setTimeout(function () {
                     messageP.textContent = ""
@@ -100,18 +106,40 @@
                 chuggButton.classList.remove("btn-primary");
                 chuggButton.classList.add("btn-success");
                 chuggButton.textContent = "Refill";
+                chuggedGlasses += 12.5;
+                chuggTracker.style.width = chuggedGlasses + "%"
             };
         } else {
-            waterLevel = 100;
-            waterDiv.style.height = waterLevel + "%";
+            liquidLevel = 100;
+            liquidDiv.style.height = liquidLevel + "%";
             chuggButton.classList.remove("btn-success");
             chuggButton.classList.add("btn-primary");
         }
     })
 
     // 2. Selecting a different drink should change the liquid in the glass
-    // 3. Drinking an entire glass should allow the user to re-fill the glass and update the tracker
 
+    const drinkSelector = document.getElementById("drinkSelector");
+
+    drinkSelector.addEventListener('change', function (event) {
+        const selectedDrink = event.target.value;
+
+        liquidDiv.style.height = "0%";
+
+        setTimeout(function () {
+            if (selectedDrink === "Water") {
+                liquidDiv.style.backgroundColor = "#4299e1";
+                appTitle.innerHTML = "💧 Chug a glass of water!"
+            } else if (selectedDrink === "Juice") {
+                liquidDiv.style.backgroundColor = "#FFB347";
+                appTitle.innerHTML = "🧃 Chug a glass of juice!"
+            } else if (selectedDrink === "Coke") {
+                liquidDiv.style.backgroundColor = "#3C1414";
+                appTitle.innerHTML = "🥤 Chug a glass of coke!"
+            }
+            liquidDiv.style.height = "100%";
+        }, 500);
+    });
 
 </script>
 
