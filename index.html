@@ -1,4 +1,4 @@
-<!-- Architecture: html + Bootrstap css (+ some tailwind css) + vanilla JS + FastAPI BE + sqlite DB -->
+<!-- Architecture: html + Bootstrap css + vanilla JS, single file -->
 
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
@@ -21,8 +21,56 @@
         button {
             font-size: 16px;
         }
+
+        #message {
+            transition: opacity 0.5s;
+        }
+
+        @keyframes bubble1 {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100px) scale(0.8);
+                opacity: 0;
+            }
+        }
+
+        @keyframes bubble2 {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0.25;
+            }
+            100% {
+                transform: translateY(-80px) scale(0.9);
+                opacity: 0;
+            }
+        }
+
+        @keyframes bubble3 {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0.2;
+            }
+            100% {
+                transform: translateY(-60px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        .animate-bubble1 {
+            animation: bubble1 2s infinite ease-in-out;
+        }
+
+        .animate-bubble2 {
+            animation: bubble2 3s infinite ease-in-out 1s;
+        }
+
+        .animate-bubble3 {
+            animation: bubble3 2.5s infinite ease-in-out 0.5s;
+        }
     </style>
-    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body>
@@ -43,6 +91,18 @@
                         <div id="liquid"
                             style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background-color: #4299e1; border-bottom-left-radius: 40%; border-bottom-right-radius: 40%; transition: height 0.5s;">
                         </div>
+                        <!-- Bubbles -->
+                        <div id="bubbles">
+                            <div class="bubble animate-bubble1"
+                                style="position: absolute; bottom: 0; left: 33%; width: 8px; height: 8px; background: white; border-radius: 50%; opacity: 0.3; z-index: 10;">
+                            </div>
+                            <div class="bubble animate-bubble2"
+                                style="position: absolute; bottom: 0; left: 50%; width: 6px; height: 6px; background: white; border-radius: 50%; opacity: 0.25; z-index: 10;">
+                            </div>
+                            <div class="bubble animate-bubble3"
+                                style="position: absolute; bottom: 0; left: 66%; width: 4px; height: 4px; background: white; border-radius: 50%; opacity: 0.2; z-index: 10;">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -52,7 +112,7 @@
                 </div>
             </div>
             <div class="row mb-3">
-                <p id="message" class="text-center" style="height: 50px;">
+                <p id="message" class="text-center" style="height: 50px; opacity: 0;">
                 </p>
             </div>
             <div class="row mb-3 justify-content-center">
@@ -73,44 +133,69 @@
                         <div id="chuggTracker" class="progress-bar bg-primary" style="width: 0%"></div>
                     </div>
                 </div>
+                <div class="col-auto">
+                    <span id="glassCount">0 / 8</span>
+                </div>
             </div>
         </div>
     </div>
 </body>
 
 <script>
-    // 3 pieces of interactive logic:
-    // 1. Pressing the chugg button should reduce the water in the glass and provide text feedback
+    const GOAL = 8;
 
     const chuggButton = document.getElementById("chuggButton");
     const liquidDiv = document.getElementById("liquid");
     const messageP = document.getElementById("message");
     const chuggTracker = document.getElementById("chuggTracker");
     const appTitle = document.getElementById("appTitle");
+    const glassCount = document.getElementById("glassCount");
 
     let liquidLevel = 100;
-    let chuggedGlasses = 0;
+    let chuggedGlasses = 0; // integer count of completed glasses
+
+    // localStorage persistence with daily reset
+    const today = new Date().toDateString();
+    const saved = JSON.parse(localStorage.getItem('chugger') || '{}');
+    if (saved.date === today) {
+        chuggedGlasses = saved.count || 0;
+    }
+
+    // Update UI from loaded state
+    chuggTracker.style.width = Math.min((chuggedGlasses / GOAL) * 100, 100) + "%";
+    glassCount.textContent = `${chuggedGlasses} / ${GOAL}`;
+
+    let fadeTimeout;
 
     chuggButton.addEventListener('click', function () {
         if (liquidLevel > 0) {
             liquidLevel -= 20;
             liquidDiv.style.height = liquidLevel + "%";
-            messageP.textContent = "glug";
-            setTimeout(function () {
-                messageP.textContent = ""
-            }, 1500);
 
             if (liquidLevel === 0) {
                 messageP.textContent = "All done!";
-                setTimeout(function () {
-                    messageP.textContent = ""
+                messageP.style.opacity = "1";
+                if (fadeTimeout) clearTimeout(fadeTimeout);
+                fadeTimeout = setTimeout(function () {
+                    messageP.style.opacity = "0";
                 }, 3000);
+
                 chuggButton.classList.remove("btn-primary");
                 chuggButton.classList.add("btn-success");
                 chuggButton.textContent = "Refill";
-                chuggedGlasses += 12.5;
-                chuggTracker.style.width = chuggedGlasses + "%"
-            };
+
+                chuggedGlasses++;
+                chuggTracker.style.width = Math.min((chuggedGlasses / GOAL) * 100, 100) + "%";
+                glassCount.textContent = `${chuggedGlasses} / ${GOAL}`;
+                localStorage.setItem('chugger', JSON.stringify({ date: today, count: chuggedGlasses }));
+            } else {
+                messageP.textContent = "glug";
+                messageP.style.opacity = "1";
+                if (fadeTimeout) clearTimeout(fadeTimeout);
+                fadeTimeout = setTimeout(function () {
+                    messageP.style.opacity = "0";
+                }, 1500);
+            }
         } else {
             liquidLevel = 100;
             liquidDiv.style.height = liquidLevel + "%";
@@ -118,10 +203,9 @@
             chuggButton.classList.add("btn-primary");
             chuggButton.textContent = "Chugg";
         }
-    })
+    });
 
-    // 2. Selecting a different drink should change the liquid in the glass
-
+    // Selecting a different drink resets the glass
     const drinkSelector = document.getElementById("drinkSelector");
 
     drinkSelector.addEventListener('change', function (event) {
@@ -129,21 +213,26 @@
 
         liquidDiv.style.height = "0%";
 
+        // Reset JS state
+        liquidLevel = 100;
+        chuggButton.classList.remove("btn-success");
+        chuggButton.classList.add("btn-primary");
+        chuggButton.textContent = "Chugg";
+
         setTimeout(function () {
             if (selectedDrink === "Water") {
                 liquidDiv.style.backgroundColor = "#4299e1";
-                appTitle.innerHTML = "💧 Chug a glass of water!"
+                appTitle.innerHTML = "💧 Chug a glass of water!";
             } else if (selectedDrink === "Juice") {
                 liquidDiv.style.backgroundColor = "#FFB347";
-                appTitle.innerHTML = "🧃 Chug a glass of juice!"
+                appTitle.innerHTML = "🧃 Chug a glass of juice!";
             } else if (selectedDrink === "Coke") {
                 liquidDiv.style.backgroundColor = "#3C1414";
-                appTitle.innerHTML = "🥤 Chug a glass of coke!"
+                appTitle.innerHTML = "🥤 Chug a glass of coke!";
             }
             liquidDiv.style.height = "100%";
         }, 500);
     });
-
 </script>
 
 </html>
