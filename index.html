@@ -89,18 +89,18 @@
                     <div
                         style="width: 100px; height: 200px; border: 2px solid white; position: relative; border-bottom-left-radius: 40%; border-bottom-right-radius: 40%; overflow: hidden;">
                         <div id="liquid"
-                            style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background-color: #4299e1; border-bottom-left-radius: 40%; border-bottom-right-radius: 40%; transition: height 0.5s;">
-                        </div>
-                        <!-- Bubbles -->
-                        <div id="bubbles">
-                            <div class="bubble animate-bubble1"
-                                style="position: absolute; bottom: 0; left: 33%; width: 8px; height: 8px; background: white; border-radius: 50%; opacity: 0.3; z-index: 10;">
-                            </div>
-                            <div class="bubble animate-bubble2"
-                                style="position: absolute; bottom: 0; left: 50%; width: 6px; height: 6px; background: white; border-radius: 50%; opacity: 0.25; z-index: 10;">
-                            </div>
-                            <div class="bubble animate-bubble3"
-                                style="position: absolute; bottom: 0; left: 66%; width: 4px; height: 4px; background: white; border-radius: 50%; opacity: 0.2; z-index: 10;">
+                            style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background-color: #4299e1; border-bottom-left-radius: 40%; border-bottom-right-radius: 40%; transition: height 0.5s; overflow: hidden;">
+                            <!-- Bubbles inside liquid so they clip at the surface -->
+                            <div id="bubbles">
+                                <div class="bubble animate-bubble1"
+                                    style="position: absolute; bottom: 0; left: 33%; width: 8px; height: 8px; background: white; border-radius: 50%; opacity: 0.3;">
+                                </div>
+                                <div class="bubble animate-bubble2"
+                                    style="position: absolute; bottom: 0; left: 50%; width: 6px; height: 6px; background: white; border-radius: 50%; opacity: 0.25;">
+                                </div>
+                                <div class="bubble animate-bubble3"
+                                    style="position: absolute; bottom: 0; left: 66%; width: 4px; height: 4px; background: white; border-radius: 50%; opacity: 0.2;">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -150,6 +150,7 @@
     const chuggTracker = document.getElementById("chuggTracker");
     const appTitle = document.getElementById("appTitle");
     const glassCount = document.getElementById("glassCount");
+    const bubbles = document.getElementById("bubbles");
 
     let liquidLevel = 100;
     let chuggedGlasses = 0; // integer count of completed glasses
@@ -183,6 +184,7 @@
                 chuggButton.classList.remove("btn-primary");
                 chuggButton.classList.add("btn-success");
                 chuggButton.textContent = "Refill";
+                bubbles.style.display = "none";
 
                 chuggedGlasses++;
                 chuggTracker.style.width = Math.min((chuggedGlasses / GOAL) * 100, 100) + "%";
@@ -202,6 +204,7 @@
             chuggButton.classList.remove("btn-success");
             chuggButton.classList.add("btn-primary");
             chuggButton.textContent = "Chugg";
+            bubbles.style.display = "";
         }
     });
 
@@ -231,6 +234,7 @@
                 appTitle.innerHTML = "🥤 Chug a glass of coke!";
             }
             liquidDiv.style.height = "100%";
+            bubbles.style.display = "";
         }, 500);
     });
 </script>
